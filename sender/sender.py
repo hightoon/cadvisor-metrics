@@ -101,7 +101,6 @@ def process_diskio(diskio, field):
     """
 
     total = 0
-    print(diskio)
     io_stats = diskio['io_service_bytes']
     for entry in io_stats:
         total += entry['stats'][field]
@@ -153,7 +152,6 @@ for key, value in r.json().items():
     max_rx_packets = None
 
     for stat in stats:
-        print(json.dumps(stat))
 
         # Grab the memory usage stats
         memory = stat['memory']
