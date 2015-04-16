@@ -1,7 +1,9 @@
 # cAdvisor Metrics
 
-This repo addresses the problem of collecting [Docker](https://github.com/docker/docker) container metrics from [cadvisor](https://github.com/google/cadvisor) at scale.
-While cadvisor has a nice [InfluxDB](https://github.com/influxdb/influxdb) integration, this project can be viewed as an alternative, or additional, means of storing cadvisor metrics. 
+This project addresses the problem of collecting [Docker](https://github.com/docker/docker) container metrics from [cadvisor](https://github.com/google/cadvisor) at scale. 
+If you are not using Kubernetes or CoreOS you can't (as of today) take advantage of the [Heapster](https://github.com/GoogleCloudPlatform/heapster) project, which solves essentially the same problem. 
+The work in this repo attempts to fill the metrics collection gap for those running Docker outside of the Kubernetes or CoreOS ecosystems. 
+Another approach is to use cadvisor's [InfluxDB](https://github.com/influxdb/influxdb) integration, however this project can be viewed as an alternative, or additional, means of storing cadvisor metrics. 
 
 At Catalyze, our [Platform as a Service](https://catalyze.io/paas) uses Docker containers to host customer applications
 and associated infrastructure (databases, logging, etc). A single customer environment will span multiple hosts and therefore
