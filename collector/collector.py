@@ -97,7 +97,7 @@ class StatHandler():
         #print(entry)
 
         r = redis.StrictRedis(host=self.redis_host, port=self.redis_port)
-        ts = entry['ts']
+        ts = entry['timestamp']
 
         # Take the machine info and store it by IP
         machine = entry['machine'] 
