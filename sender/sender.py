@@ -241,7 +241,7 @@ interval = 60 # Number of seconds of data that we are getting back from cadvisor
 
 # Create the final result to send to the collector
 stats_result = {}
-stats_result['ts'] = int(time.time()) # Epoch time for when this entry was computed (in seconds)
+stats_result['timestamp'] = int(time.time()) # Epoch time for when this entry was computed (in seconds)
 stats_result['interval'] = interval # The duration of this stat entry in seconds
 stats_result['stats'] = entries
 
@@ -249,6 +249,8 @@ stats_result['stats'] = entries
 # This data can easily be extended to include other sources (/proc, etc)
 r = requests.get('%s/machine' % cadvisor_base)
 stats_result['machine'] = r.json()
+
+print(json.dumps(stats_result))
 
 # POST the result to the collector
 headers = {'content-type': 'application/json'}
