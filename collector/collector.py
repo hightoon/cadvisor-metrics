@@ -118,13 +118,14 @@ class StatHandler():
 
             # Check to see if this is a new container (i.e. not in the set)
             if not r.sismember('names', name):
-                # Record the name of this container
-                r.sadd('names', name)
 
                 # Lookup external data that might be of use upstream
-                if not self._get_metadata(name, r, ignore_fail=True):
+                if not self._get_metadata(name, r, ignore_fail=False):
                     # Skip this entry if we have trouble looking up info
                     continue
+
+                # Record the name of this container
+                r.sadd('names', name)
 
             # An assumption is made here that all container names are unique across all machines.
             # Adding machine info to each key would allow for duplicate names (for example using the IP).
