@@ -43,7 +43,7 @@ You will also need to provide the Redis IP and port (defaults to `redis.local` a
       -e 'COLLECTOR_PORT=8787' \
       --restart on-failure:5 \
       --name collector \
-      -p 8787:8787 -d -t collector
+      -p 8787:8787 -d --name=collector
       
 
 ## Sender
@@ -81,12 +81,11 @@ First build the image:
 
 Start the container: 
 
-    sudo docker run \
+    sudo docker run -d \
       -e 'COLLECTOR_URL=http://192.168.222.5:8787/cadvisor/metrics/' \
       -e 'CADVISOR_URL=http://192.168.222.6:8989/api/v1.2' \
       --restart on-failure:5 \
-      --name sender \
-      -d sender
+      --name=sender
 
 ## Accessing Metrics
 
