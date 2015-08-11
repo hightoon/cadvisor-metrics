@@ -131,45 +131,25 @@ for key, value in r.json().items():
     stats = value['stats']
     stats_len = len(stats) # Should always be 60
 
-    # Initialize min/max/total variables for network KB, packets, memory, cpu
+    # Initialize min/max/total variables for memory, cpu
     total_memory = 0
     min_memory = None
     max_memory = None
     total_load = 0
     min_load = None
     max_load = None
-    total_tx_bytes = 0
-    min_tx_bytes = None
-    max_tx_bytes = None
-    total_rx_bytes = 0
-    min_rx_bytes = None
-    max_rx_bytes = None
-    total_tx_packets = 0
-    min_tx_packets = None
-    max_tx_packets = None
-    total_rx_packets = 0
-    min_rx_packets = None
-    max_rx_packets = None
 
+    # Compute min, max and average for all non-cumulative stats
     for stat in stats:
 
         # Grab the memory usage stats
         memory = stat['memory']
-        memory_kb = memory['usage']/1024
+        memory_kb = memory['usage']/1024.0
         total_memory, min_memory, max_memory = total_min_max(memory_kb, total_memory, min_memory, max_memory)
     
-        # Get the CPU stats. The load value is always 0?
-        cpu = stat['cpu']
+        # Get the CPU load. The load value is always 0?
         cpu_load = cpu['load_average']
         total_load, min_load, max_load = total_min_max(cpu_load, total_load, min_load, max_load)
-
-        # Grab the network stats
-        network = stat['network']
-        total_tx_bytes, min_tx_bytes, max_tx_bytes = total_min_max(network['tx_bytes'], total_tx_bytes, min_tx_bytes, max_tx_bytes)
-        total_rx_bytes, min_rx_bytes, max_rx_bytes = total_min_max(network['rx_bytes'], total_rx_bytes, min_rx_bytes, max_rx_bytes)
-        total_tx_packets, min_tx_packets, max_tx_packets = total_min_max(network['tx_packets'], total_tx_packets, min_tx_packets, max_tx_packets)
-        total_rx_packets, min_rx_packets, max_rx_packets = total_min_max(network['rx_packets'], total_rx_packets, min_rx_packets, max_rx_packets)
-        # Not handling drops right now for simplicity
 
     # Initialize the entry for this container
     entry = {'name': container_name, 'ts' : ts}
@@ -185,6 +165,24 @@ for key, value in r.json().items():
     # Compute CPU usage delta
     start_cpu_usage = first['cpu']['usage']['total']
     end_cpu_usage = last['cpu']['usage']['total']
+
+    # Network stats deltas
+    start_tx_bytes = first['network']['tx_bytes']
+    end_tx_bytes = last['network']['tx_bytes']
+    start_rx_bytes = first['network']['rx_bytes']
+    end_rx_bytes = last['network']['rx_bytes']
+    start_tx_packets = first['network']['tx_packets']
+    end_tx_packets = last['network']['tx_packets']
+    start_rx_packets = first['network']['rx_packets']
+    end_rx_packets = last['network']['rx_packets']
+    start_tx_errors = first['network']['tx_errors']
+    end_tx_errors = last['network']['tx_errors']
+    start_rx_errors = first['network']['rx_errors']
+    end_rx_errors = last['network']['rx_errors']
+    start_tx_drops = first['network']['tx_drops']
+    end_tx_drops = last['network']['tx_drops']
+    start_rx_drops = first['network']['rx_drops']
+    end_rx_drops = last['network']['rx_drops']
 
     # Compute Disk IO deltas
     start_async_bytes = process_diskio(first['diskio'], 'Async')
@@ -209,23 +207,14 @@ for key, value in r.json().items():
     entry['memory']['max'] = max_memory
 
     # Add network stats
-    entry['network']['tx_bytes'] = {}
-    entry['network']['tx_bytes']['ave'] = total_tx_bytes/stats_len 
-    entry['network']['tx_bytes']['min'] = min_tx_bytes
-    entry['network']['tx_bytes']['max'] = max_tx_bytes
-    entry['network']['rx_bytes'] = {}
-    entry['network']['rx_bytes']['ave'] = total_rx_bytes/stats_len 
-    entry['network']['rx_bytes']['min'] = min_rx_bytes
-    entry['network']['rx_bytes']['max'] = max_rx_bytes
-    entry['network']['tx_packets'] = {}
-    entry['network']['tx_packets']['ave'] = total_tx_packets/stats_len 
-    entry['network']['tx_packets']['min'] = min_tx_packets
-    entry['network']['tx_packets']['max'] = max_tx_packets
-    entry['network']['rx_packets'] = {}
-    entry['network']['rx_packets']['ave'] = total_rx_packets/stats_len 
-    entry['network']['rx_packets']['min'] = min_rx_packets
-    entry['network']['rx_packets']['max'] = max_rx_packets
-    # Note that errors are not being reported, easy enough to add
+    entry['network']['tx_kb'] = (end_tx_bytes - start_tx_bytes)/1024.0
+    entry['network']['rx_kb'] = (end_rx_bytes - start_rx_bytes)/1024.0
+    entry['network']['tx_packets'] = end_tx_packets - start_tx_packets
+    entry['network']['rx_packets'] = end_rx_packets - start_rx_packets
+    entry['network']['tx_errors'] = end_tx_errors - start_tx_errors
+    entry['network']['rx_errors'] = end_rx_errors - start_rx_errors
+    entry['network']['tx_drops'] = end_tx_drops - start_tx_drops
+    entry['network']['rx_drops'] = end_rx_drops - start_rx_drops
 
     # Add disk IO stats
     # These stats are currently aggregated across all volumes. May not be desirable.
