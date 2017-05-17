@@ -148,6 +148,7 @@ for key, value in r.json().items():
         total_memory, min_memory, max_memory = total_min_max(memory_kb, total_memory, min_memory, max_memory)
     
         # Get the CPU load. The load value is always 0?
+        cpu = stats['cpu']
         cpu_load = cpu['load_average']
         total_load, min_load, max_load = total_min_max(cpu_load, total_load, min_load, max_load)
 
